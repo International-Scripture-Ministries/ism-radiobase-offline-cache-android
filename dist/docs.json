@@ -1,0 +1,31 @@
+{
+  "api": {
+    "name": "CachePlugin",
+    "slug": "cacheplugin",
+    "docs": "",
+    "tags": [],
+    "methods": [
+      {
+        "name": "action",
+        "signature": "(options: { value: string; }) => Promise<{ value: string; }>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "{ value: string; }"
+          }
+        ],
+        "returns": "Promise<{ value: string; }>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "action"
+      }
+    ],
+    "properties": []
+  },
+  "interfaces": [],
+  "enums": [],
+  "typeAliases": [],
+  "pluginConfigs": []
+}
