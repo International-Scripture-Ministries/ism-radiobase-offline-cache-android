@@ -92,6 +92,7 @@ public class MainActivity extends BridgeActivity {
 <docgen-index>
 
 * [`action(...)`](#action)
+* [Interfaces](#interfaces)
 
 </docgen-index>
 
@@ -101,16 +102,30 @@ public class MainActivity extends BridgeActivity {
 ### action(...)
 
 ```typescript
-action(options: { value: string; }) => Promise<{ value: string; }>
+action(options: { value: JSON; }) => Promise<{ value: string; }>
 ```
 
-| Param         | Type                            |
-| ------------- | ------------------------------- |
-| **`options`** | <code>{ value: string; }</code> |
+| Param         | Type                                              |
+| ------------- | ------------------------------------------------- |
+| **`options`** | <code>{ value: <a href="#json">JSON</a>; }</code> |
 
 **Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
 
 --------------------
+
+
+### Interfaces
+
+
+#### JSON
+
+An intrinsic object that provides functions to convert JavaScript values to and from the JavaScript Object Notation (<a href="#json">JSON</a>) format.
+
+| Method        | Signature                                                                                                                                  | Description                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| **parse**     | (text: string, reviver?: ((this: any, key: string, value: any) =&gt; any) \| undefined) =&gt; any                                          | Converts a JavaScript Object Notation (<a href="#json">JSON</a>) string into an object.        |
+| **stringify** | (value: any, replacer?: ((this: any, key: string, value: any) =&gt; any) \| undefined, space?: string \| number \| undefined) =&gt; string | Converts a JavaScript value to a JavaScript Object Notation (<a href="#json">JSON</a>) string. |
+| **stringify** | (value: any, replacer?: (string \| number)[] \| null \| undefined, space?: string \| number \| undefined) =&gt; string                     | Converts a JavaScript value to a JavaScript Object Notation (<a href="#json">JSON</a>) string. |
 
 </docgen-api>
 

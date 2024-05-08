@@ -11,7 +11,6 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleService
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
@@ -96,9 +95,9 @@ class CachePlugin : Plugin() {
     try {
         Thread {
           Handler(Looper.getMainLooper()).post {
-          val type: JSONObject = call.data.getJSONObject("value")
+//          val call.data: JSONObject = call.data.getJSONObject("value")
 
-          if (type.getString("type") == "initDownloadColumn") {
+          if (call.data.getString("type") == "initDownloadColumn") {
             if(prefHelper.getBoolean("runOnce") == true) {
 
               for (dbName in Constants.ALL_DB) {
@@ -107,9 +106,9 @@ class CachePlugin : Plugin() {
               }
             }
           }
-          else if (type.getString("type") == "getTeaching") {
-            val teachId = type.getString("teaching_id")
-            val myDbFile = File("/data/data/$myPkg/databases/", type.getString("book_id").toLowerCase(Locale.getDefault()))
+          else if (call.data.getString("type") == "getTeaching") {
+            val teachId = call.data.getString("teaching_id")
+            val myDbFile = File("/data/data/$myPkg/databases/", call.data.getString("book_id")!!.toLowerCase(Locale.getDefault()))
             if (myDbFile.exists()) {
               val bookId = myDbFile.name.toLowerCase()
               genDb = DBHelper(mAppContext, bookId)
@@ -121,10 +120,10 @@ class CachePlugin : Plugin() {
               call.resolve(ret)
             }
           }
-          else if (type.getString("type") == "getBookTeaching") {
+          else if (call.data.getString("type") == "getBookTeaching") {
 
             var mTeachArray: ArrayList<Teaching> = ArrayList()
-            val myDbFile = File("/data/data/$myPkg/databases/", type.getString("book_id").toLowerCase(Locale.getDefault()))
+            val myDbFile = File("/data/data/$myPkg/databases/", call.data.getString("book_id")!!.toLowerCase(Locale.getDefault()))
             if (myDbFile.exists()) {
               val bookId = myDbFile.name.toLowerCase();
               genDb = DBHelper(mAppContext, bookId)
@@ -137,7 +136,7 @@ class CachePlugin : Plugin() {
             }
 
           }
-          else if (type.getString("type") == "getAllBooks") {
+          else if (call.data.getString("type") == "getAllBooks") {
             myDbs = ArrayList()
 
             val mOBookArray: ArrayList<BookOnly> = ArrayList()
@@ -175,10 +174,10 @@ class CachePlugin : Plugin() {
               ret.put("value", gson.convertToJsonString(mBooksResponse))
               call.resolve(ret)
           }
-          else if (type.getString("type") == "getVerses") {
-            val bookId = type.getString("bookId").toLowerCase()
-            val bibleId = type.getString("bibleId")
-            val chapterNumber = type.getString("chapterNumber")
+          else if (call.data.getString("type") == "getVerses") {
+            val bookId = call.data.getString("bookId")!!.toLowerCase()
+            val bibleId = call.data.getString("bibleId")
+            val chapterNumber = call.data.getString("chapterNumber")
             val myBook = File("/data/data/$myPkg/databases/", bookId)
             if (myBook.exists()) {
               val bookId = myBook.name.toLowerCase()
@@ -196,18 +195,18 @@ class CachePlugin : Plugin() {
                 call.resolve(ret)
             }
           }
-          else if (type.getString("type") == "getDownloadList") {
-            val book_id = type.getString("book_id").toLowerCase(Locale.getDefault())
-            val file_type = type.getString("file_type")
+          else if (call.data.getString("type") == "getDownloadList") {
+            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val file_type = call.data.getString("file_type")
             genDb = DBHelper(mAppContext, book_id)
               ret.put("value", gson.convertToJsonString(genDb.getAllNotDownloadedUrl(file_type)))
               call.resolve(ret)
           }
-          else if (type.getString("type") == "getTeachings") {
-            val bible_book = type.getString("bible_book").toLowerCase()
-            if (type.has("chapterNumber")) {
-              val chapterNumber = type.getString("chapterNumber")
-              val verseNumber = type.getString("verseNumber")
+          else if (call.data.getString("type") == "getTeachings") {
+            val bible_book = call.data.getString("bible_book")!!.toLowerCase()
+            if (call.data.has("chapterNumber")) {
+              val chapterNumber = call.data.getString("chapterNumber")
+              val verseNumber = call.data.getString("verseNumber")
               val myBook = File("/data/data/$myPkg/databases/", bible_book)
               if (myBook.exists()) {
                 val bookId = myBook.name
@@ -239,17 +238,17 @@ class CachePlugin : Plugin() {
               }
             }
           }
-          else if (type.getString("type") == "getBibleData") {
+          else if (call.data.getString("type") == "getBibleData") {
             genDb =
-              DBHelper(mAppContext, type.getString("book_id").toLowerCase(Locale.getDefault()))
+              DBHelper(mAppContext, call.data.getString("book_id")!!.toLowerCase(Locale.getDefault()))
 
-            val mBook: Book = genDb.getBook(type.getString("book_id").toLowerCase(Locale.getDefault()))
+            val mBook: Book = genDb.getBook(call.data.getString("book_id")!!.toLowerCase(Locale.getDefault()))
             val mBookArray: ArrayList<Book> = ArrayList()
             mBookArray.add(mBook)
               ret.put("value", gson.convertToJsonString(mBookArray))
               call.resolve(ret)
           }
-          else if (type.getString("type") == "startDownload") {
+          else if (call.data.getString("type") == "startDownload") {
 
             mDownloadService = DownloadService()
 
@@ -257,10 +256,12 @@ class CachePlugin : Plugin() {
               serviceIntent = Intent(mAppContext, DownloadService::class.java)
               serviceIntent!!.putExtra("inputExtra", "Download Service")
 
-              if (type != null) {
+              if (call.data != null) {
 
-                if (type.has("book_id") && type.has("file_type") && type.has("chapterNumber") && type.has("uuid")) {
-                  val mIonicData = IonicData(type.getString("book_id").toLowerCase(Locale.getDefault()), type.getString("file_type"), type.getString("chapterNumber"), type.getString("uuid"))
+                if (call.data.has("book_id") && call.data.has("file_type") && call.data.has("chapterNumber") && call.data.has("uuid")) {
+                  val mIonicData = IonicData(call.data.getString("book_id")!!.toLowerCase(Locale.getDefault()),
+                    call.data.getString("file_type")!!, call.data.getString("chapterNumber")!!, call.data.getString("uuid")!!
+                  )
                   genDb = DBHelper(mAppContext, mIonicData.bookId)
 
                   if (mIonicData.fileType == Constants.CHAPTER) {
@@ -282,25 +283,25 @@ class CachePlugin : Plugin() {
                 call.resolve(ret)
             }
           }
-          else if (type.getString("type") == "updateLocalPath") {
-            val book_id = type.getString("book_id").toLowerCase(Locale.getDefault())
-            val file_type = type.getString("file_type")
-            val local_path = type.getString("local_path")
-            val chapter_number = type.getString("chapterNumber")
-            val uuid = type.getString("uuid")
+          else if (call.data.getString("type") == "updateLocalPath") {
+            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val file_type = call.data.getString("file_type")
+            val local_path = call.data.getString("local_path")
+            val chapter_number = call.data.getString("chapterNumber")
+            val uuid = call.data.getString("uuid")
 
             val mVal = "{ \"message\": \"success\", \"status\": \"true\" }"
               ret.put("value", mVal)
               call.resolve(ret)
 
           }
-          else if (type.getString("type") == "startAllDownload") {
+          else if (call.data.getString("type") == "startAllDownload") {
 
             downloadManager = activity.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
-            val book_id = type.getString("book_id").toLowerCase(Locale.getDefault())
-            val chapter = type.getBoolean("chapter")
-            val teaching = type.getBoolean("teaching")
+            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val chapter = call.data.getBoolean("chapter")
+            val teaching = call.data.getBoolean("teaching")
             genDb = DBHelper(mAppContext, book_id)
 
             if(chapter) {
@@ -318,14 +319,14 @@ class CachePlugin : Plugin() {
               ret.put("value", "{ \"message\": \"success\", \"status\": \"true\" }")
               call.resolve(ret)
           }
-          else if (type.getString("type") == "getLiveProgress") {
+          else if (call.data.getString("type") == "getLiveProgress") {
               ret.put("value", DownloadService.myLiveJson.value)
               call.resolve(ret)
           }
-          else if (type.getString("type") == "getPercentage") {
+          else if (call.data.getString("type") == "getPercentage") {
 
-            val book_id = type.getString("book_id").toLowerCase(Locale.getDefault())
-            val file_type = type.getString("file_type")
+            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val file_type = call.data.getString("file_type")
             var downloaded: Double = 0.0
             var total: Double = 0.0
 
@@ -362,10 +363,10 @@ class CachePlugin : Plugin() {
             }
             call.resolve(ret)
           }
-          else if (type.getString("type") == "getBookPercentage") {
+          else if (call.data.getString("type") == "getBookPercentage") {
             var mArrayData = ArrayList<BookPercentage>()
 
-            val file_type = type.getString("file_type")
+            val file_type = call.data.getString("file_type")
 
             var downloaded: Double = 0.0
             var total: Double = 0.0
@@ -399,41 +400,41 @@ class CachePlugin : Plugin() {
               ret.put("value", gson.convertToJsonString(mArrayData))
               call.resolve(ret)
           }
-          else if (type.getString("type") == "getBookDownloads") {
+          else if (call.data.getString("type") == "getBookDownloads") {
 
-            val bookId = type.getString("bookId").toLowerCase()
+            val bookId = call.data.getString("bookId")!!.toLowerCase()
 
             val genDb = DBHelper(mAppContext, bookId)
               ret.put("value", gson.convertToJsonString(genDb.bookDownloaded))
               call.resolve(ret)
           }
-          else if (type.getString("type") == "getStatus") {
+          else if (call.data.getString("type") == "getStatus") {
 
-            val book_id = type.getString("book_id").toLowerCase(Locale.getDefault())
-            val file_type = type.getString("file_type")
-            val chapterNumber = type.getString("chapterNumber")
+            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val file_type = call.data.getString("file_type")
+            val chapterNumber = call.data.getString("chapterNumber")
 
             genDb = DBHelper(mAppContext, book_id)
             val mVal = "{ \"message\": \"success\", \"status\": \"true\" }"
               ret.put("value", mVal)
               call.resolve(ret)
           }
-          else if (type.getString("type") == "updateDownload") {
-            val file_name = type.getString("file_name")
+          else if (call.data.getString("type") == "updateDownload") {
+            val file_name = call.data.getString("file_name")
 //          PHP_chapter_3.mp3
-            val book_id = file_name.split("_")[0].toLowerCase(Locale.getDefault())
+            val book_id = file_name?.split("_")?.get(0)?.toLowerCase(Locale.getDefault())
 
             genDb = DBHelper(mAppContext, book_id)
-            genDb.updateDownloadedData(type)
+            genDb.updateDownloadedData(call.data)
             val mVal = "{ \"message\": \"success\", \"status\": \"true\" }"
               ret.put("value", mVal)
               call.resolve(ret)
           }
-          else if (type.getString("type") == "delete") {
-            val book_id = type.getString("book_id").toLowerCase(Locale.getDefault())
-            val file_type = type.getString("file_type")
-            val chapterNumber = type.getString("chapterNumber")
-            val uuid = type.getString("uuid")
+          else if (call.data.getString("type") == "delete") {
+            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val file_type = call.data.getString("file_type")
+            val chapterNumber = call.data.getString("chapterNumber")
+            val uuid = call.data.getString("uuid")
 
             genDb = DBHelper(mAppContext, book_id)
             genDb.deleteDownloads(file_type, chapterNumber, uuid)
@@ -442,11 +443,11 @@ class CachePlugin : Plugin() {
               ret.put("value", mVal)
               call.resolve(ret)
           }
-          else if (type.getString("type") == "deleteDownloads") {
-            val book_id = type.getString("book_id").toLowerCase(Locale.getDefault())
-            val file_type = type.getString("file_type")
-            val chapterDownloads = type.getBoolean("chapterDownloads")
-            val studyDownloads = type.getBoolean("studyDownloads")
+          else if (call.data.getString("type") == "deleteDownloads") {
+            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val file_type = call.data.getString("file_type")
+            val chapterDownloads = call.data.getBoolean("chapterDownloads")
+            val studyDownloads = call.data.getBoolean("studyDownloads")
 
             when (file_type) {
               "single" -> {
@@ -474,7 +475,7 @@ class CachePlugin : Plugin() {
               ret.put("value", mVal)
               call.resolve(ret)
           }
-          else if (type.getString("type") == "getTotalDownloads") {
+          else if (call.data.getString("type") == "getTotalDownloads") {
             var mArrayData = ArrayList<TotalDownload>()
 
             for (dbName in Constants.ALL_DB) {

@@ -9,9 +9,9 @@ const Cache = core.registerPlugin('Cache', {
 });
 
 class CacheWeb extends core.WebPlugin {
-    async action(options) {
+    action(options) {
         console.log('ACTION', options);
-        return options;
+        return Promise.resolve({ value: "" });
     }
 }
 

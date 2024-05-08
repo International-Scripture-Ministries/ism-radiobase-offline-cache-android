@@ -1,6 +1,6 @@
 export interface CachePlugin {
     action(options: {
-        value: string;
+        value: JSON;
     }): Promise<{
         value: string;
     }>;
