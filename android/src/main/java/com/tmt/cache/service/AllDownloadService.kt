@@ -28,12 +28,12 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
+import com.tmt.cache.MainActivity
+import com.tmt.cache.R
 import com.tmt.cache.helper.Constants
 import com.tmt.cache.helper.DBHelper
 import com.tmt.cache.model.DownloadData
 import com.tmt.cache.model.MLiveDownload
-import com.pressbible.lugandan.MainActivity
-import com.pressbible.lugandan.R
 import org.json.JSONObject
 import java.io.File
 import java.util.Locale
@@ -135,7 +135,8 @@ class AllDownloadService : LifecycleService() {
     }
 
     val notificationIntent = Intent(this, MainActivity::class.java)
-    val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+    val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent,
+      PendingIntent.FLAG_IMMUTABLE)
     val notification = NotificationCompat.Builder(this, CHANNEL_ID).setContentTitle(APP_NAME)
       .setContentText(this.resources.getString(R.string.app_name) + " downloading content").setSmallIcon(android.R.drawable.ic_menu_share)
       .setContentIntent(pendingIntent).setPriority(Notification.PRIORITY_LOW)

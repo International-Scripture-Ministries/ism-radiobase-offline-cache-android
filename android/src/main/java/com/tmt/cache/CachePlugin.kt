@@ -1,5 +1,6 @@
 package com.tmt.cache
 
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.DownloadManager
 import android.content.Context
@@ -31,7 +32,6 @@ import com.tmt.cache.model.IonicData
 import com.tmt.cache.model.Teaching
 import com.tmt.cache.model.TotalDownload
 import com.tmt.cache.service.DownloadService
-import org.apache.cordova.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
@@ -78,6 +78,7 @@ class CachePlugin : Plugin() {
   private lateinit var prefHelper: PrefHelper
   private lateinit var gson: Gson
 
+  @SuppressLint("SuspiciousIndentation")
   @Throws(JSONException::class)
   @PluginMethod
   fun action(call: PluginCall) {

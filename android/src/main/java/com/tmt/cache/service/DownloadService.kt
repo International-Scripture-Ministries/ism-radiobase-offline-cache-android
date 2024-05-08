@@ -28,12 +28,12 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
+import com.tmt.cache.MainActivity
+import com.tmt.cache.R
 import com.tmt.cache.helper.Constants
 import com.tmt.cache.helper.DBHelper
 import com.tmt.cache.model.DownloadData
 import com.tmt.cache.model.MLiveDownload
-import com.pressbible.lugandan.MainActivity
-import com.pressbible.lugandan.R
 import org.json.JSONObject
 import java.io.File
 import java.util.Locale

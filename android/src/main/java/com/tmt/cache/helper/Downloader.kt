@@ -2,9 +2,9 @@ package com.tmt.cache.helper
 
 import android.app.DownloadManager
 import android.content.Context
+import android.content.Context.DOWNLOAD_SERVICE
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LifecycleService
 import com.tmt.cache.model.DownloadData
 import java.util.concurrent.Executors
 
@@ -14,7 +14,7 @@ class Downloader(val it: DownloadData, val context: Context) {
   private val executor = Executors.newFixedThreadPool(1)
 
   public fun start() {
-    downloadManager = context.getSystemService(LifecycleService.DOWNLOAD_SERVICE) as DownloadManager
+    downloadManager = context.getSystemService(DOWNLOAD_SERVICE) as DownloadManager
 
     val request = DownloadManager.Request(Uri.parse(it.downloadUrl))
     request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
