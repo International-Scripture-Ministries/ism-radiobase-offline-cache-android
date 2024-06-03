@@ -1,12 +1,24 @@
-# capacitor-plugin-offline-cache
-
+<h3> Capacitor Plugin Offline Cache </h3>
 Ionic capacitor plugin for Android which load total 66 bible book (New & Old testaments) respectively without internet.
+<br/>
 
-## Installation
+### Prerequisites
+- Clone the project<br/>
+- Open project in a Code Editor (Visual Studio is recommended)<br/>
+- Open project folder in terminal run command `npm install`
+
+### Tested on
+
+- Ionic 7 <a href="https://ionicframework.com/docs" target="_blank"> Ionic Documentation</a><br/>
+- Capacitor CLI 5.5.1
+
+## Getting Started
+### Installation
 
 ```bash
-npm install capacitor-plugin-offline-cache
+npm install https://github.com/International-Scripture-Ministries/capacitor-plugins/android/capacitor-plugin-offline-cache
 npx cap sync
+ionic capacitor build android
 ```
 
 ## Post Installation
@@ -15,10 +27,9 @@ After building Ionic Capacitor Android platform, copy all of your database files
 \android\app\src\main\assets
 ```
 
-
-Copy the following code into your MainActivity of your Ionic Capacitor project following 'com.radiobase.radiobase'
+Copy the following code into your MainActivity of your Ionic Capacitor project
 ```java
-package com.radiobase.radiobase;
+package com.example.android;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -87,51 +98,33 @@ public class MainActivity extends BridgeActivity {
   }
 }
 ```
+
 ## Usage
-
-<docgen-index>
-
+### API
 * [`action(...)`](#action)
-* [Interfaces](#interfaces)
 
-</docgen-index>
-
-<docgen-api>
-<!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
 
 ### action(...)
 
 ```typescript
 action(options: { value: JSON; }) => Promise<{ value: string; }>
 ```
+```typescript
+const obj = {
+    type: "getTeachings",
+    book_id: "GEN",
+    teaching_id: "12345678"
+};
 
-| Param         | Type                                              |
-| ------------- | ------------------------------------------------- |
-| **`options`** | <code>{ value: <a href="#json">JSON</a>; }</code> |
-
-**Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
-
---------------------
+Cache.action(obj).then((resp: any) => {
+    let parsed = JSON.parse(resp.value);
+})
+```
+- type: Below are the following types of method provided to perform operations<br/>
 
 
-### Interfaces
-
-
-#### JSON
-
-An intrinsic object that provides functions to convert JavaScript values to and from the JavaScript Object Notation (<a href="#json">JSON</a>) format.
-
-| Method        | Signature                                                                                                                                  | Description                                                                                    |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| **parse**     | (text: string, reviver?: ((this: any, key: string, value: any) =&gt; any) \| undefined) =&gt; any                                          | Converts a JavaScript Object Notation (<a href="#json">JSON</a>) string into an object.        |
-| **stringify** | (value: any, replacer?: ((this: any, key: string, value: any) =&gt; any) \| undefined, space?: string \| number \| undefined) =&gt; string | Converts a JavaScript value to a JavaScript Object Notation (<a href="#json">JSON</a>) string. |
-| **stringify** | (value: any, replacer?: (string \| number)[] \| null \| undefined, space?: string \| number \| undefined) =&gt; string                     | Converts a JavaScript value to a JavaScript Object Notation (<a href="#json">JSON</a>) string. |
-
-</docgen-api>
-
-## action methods
-You have to call action function by passing json string in "value" parameter.
-```js
+## action types
+```typescript
 getAllBooks()
 // return all books data matching the bibleId
 
