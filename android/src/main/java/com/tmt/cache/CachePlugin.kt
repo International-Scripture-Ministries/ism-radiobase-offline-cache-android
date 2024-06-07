@@ -141,6 +141,7 @@ class CachePlugin : Plugin() {
 
             val mOBookArray: ArrayList<BookOnly> = ArrayList()
             val mNBookArray: ArrayList<BookOnly> = ArrayList()
+            val mGBookArray: ArrayList<BookOnly> = ArrayList()
 
             for (dbNames in Constants.OLD_BOOKS_ID) {
               myDbs.add(File("/data/data/$myPkg/databases/", dbNames))
@@ -170,7 +171,19 @@ class CachePlugin : Plugin() {
               }
             }
 
-            val mBooksResponse = BooksResponse(mOBookArray, mNBookArray)
+            myDbs = ArrayList()
+            myDbs.add(File("/data/data/$myPkg/databases/gdl"))
+
+            for (myDbFile in myDbs) {
+              if (myDbFile.exists()) {
+                val bookId = myDbFile.name.toLowerCase();
+                genDb = DBHelper(mAppContext, bookId)
+
+                mGBookArray.add(genDb.allBooks)
+              }
+            }
+
+            val mBooksResponse = BooksResponse(mOBookArray, mNBookArray, mGBookArray)
               ret.put("value", gson.convertToJsonString(mBooksResponse))
               call.resolve(ret)
           }

@@ -1,6 +1,6 @@
 {
   "name": "capacitor-plugin-offline-cache",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Offline cache plugin for Ionic 7 Capacitor",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
