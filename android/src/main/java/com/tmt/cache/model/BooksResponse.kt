@@ -7,5 +7,7 @@ class BooksResponse(
         @SerializedName("old_testament")
         val oldTestament: ArrayList<BookOnly>,
         @SerializedName("new_testament")
-        val newTestament: ArrayList<BookOnly>
+        val newTestament: ArrayList<BookOnly>,
+        @SerializedName("guidelines")
+        val guidelines: ArrayList<BookOnly>
 )
