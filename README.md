@@ -10,7 +10,7 @@ Ionic capacitor plugin for Android which load total 66 bible book (New & Old tes
 ### Tested on
 
 - Ionic 7 <a href="https://ionicframework.com/docs" target="_blank"> Ionic Documentation</a><br/>
-- Capacitor CLI 5.5.1
+- Capacitor CLI 6.6.1
 
 ## Getting Started
 ### Installation
