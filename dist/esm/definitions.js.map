@@ -1,1 +1,1 @@
-{"version":3,"file":"definitions.js","sourceRoot":"","sources":["../../src/definitions.ts"],"names":[],"mappings":"","sourcesContent":["export interface CachePlugin {\r\n  action(options: { value: JSON }): Promise<{ value: string }>;\r\n}\r\n"]}
+{"version":3,"file":"definitions.js","sourceRoot":"","sources":["../../src/definitions.ts"],"names":[],"mappings":"","sourcesContent":["export interface CachePlugin {\n  action(options: { value: JSON }): Promise<{ value: string }>;\n}\n"]}
