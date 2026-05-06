@@ -21,6 +21,7 @@ import com.tmt.cache.helper.Constants
 import com.tmt.cache.helper.DBHelper
 import com.tmt.cache.helper.DownloadDB
 import com.tmt.cache.helper.Downloader
+import com.tmt.cache.helper.OfflineDbAssetMigrator
 import com.tmt.cache.helper.PrefHelper
 import com.tmt.cache.model.Book
 import com.tmt.cache.model.BookOnly
@@ -77,6 +78,11 @@ class CachePlugin : Plugin() {
   private lateinit var prefHelper: PrefHelper
   private lateinit var gson: Gson
 
+  override fun load() {
+    super.load()
+    OfflineDbAssetMigrator(context.applicationContext).refreshInBackground()
+  }
+
   @SuppressLint("SuspiciousIndentation")
   @Throws(JSONException::class)
   @PluginMethod
@@ -94,6 +100,7 @@ class CachePlugin : Plugin() {
 
     try {
         Thread {
+          OfflineDbAssetMigrator.awaitRefresh()
           Handler(Looper.getMainLooper()).post {
 //          val call.data: JSONObject = call.data.getJSONObject("value")
 
@@ -600,4 +607,3 @@ class CachePlugin : Plugin() {
     private const val TAG = "Cache"
   }
 }
-
