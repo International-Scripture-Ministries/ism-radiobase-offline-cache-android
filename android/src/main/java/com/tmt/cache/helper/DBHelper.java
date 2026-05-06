@@ -99,6 +99,47 @@ public class DBHelper extends SQLiteOpenHelper {
     onCreate(db);
   }
 
+  private String safeString(Cursor cursor, int columnIndex) {
+    if (cursor == null || columnIndex < 0 || cursor.isNull(columnIndex)) {
+      return "";
+    }
+
+    return cursor.getString(columnIndex);
+  }
+
+  private int safeInt(Cursor cursor, int columnIndex) {
+    String value = safeString(cursor, columnIndex);
+    if (value == null || value.trim().isEmpty() || value.equalsIgnoreCase("none") || value.equalsIgnoreCase("null")) {
+      return 0;
+    }
+
+    try {
+      return Integer.parseInt(value.trim());
+    } catch (NumberFormatException ignored) {
+      return 0;
+    }
+  }
+
+  private MVerse.Teachings teachingFromCursor(Cursor teaching) {
+    return new MVerse.Teachings(
+      safeString(teaching, 1),
+      safeInt(teaching, 2),
+      safeString(teaching, 3),
+      safeString(teaching, 4),
+      safeInt(teaching, 5),
+      safeInt(teaching, 6),
+      safeInt(teaching, 7),
+      safeInt(teaching, 8),
+      safeString(teaching, 9),
+      safeString(teaching, 10),
+      safeString(teaching, 11),
+      safeString(teaching, 12),
+      safeString(teaching, 13),
+      safeString(teaching, 14),
+      safeString(teaching, 15)
+    );
+  }
+
   public void deleteDownloads(String file_type) {
     SQLiteDatabase db = this.getWritableDatabase();
 
@@ -668,9 +709,9 @@ public class DBHelper extends SQLiteOpenHelper {
       if (!verses.getString(9).equals("")) {
         Cursor teaching = db.rawQuery("select * from " + TABLE_TEACHING + " WHERE " + UUID + "=?", new String[]{verses.getString(9)});
         teaching.moveToFirst();
-        mVerseList.add(new MVerse(verses.getString(1), verses.getString(2), verses.getString(3), verses.getString(4), verses.getString(5), verses.getString(6), verses.getString(7), Integer.parseInt(verses.getString(8)), new MVerse.Teachings(teaching.getString(1), Integer.parseInt(teaching.getString(2)), teaching.getString(3), teaching.getString(4), Integer.parseInt(teaching.getString(5)), Integer.parseInt(teaching.getString(6)), Integer.parseInt(teaching.getString(7)), Integer.parseInt(teaching.getString(8)), teaching.getString(9), teaching.getString(10), teaching.getString(11), teaching.getString(12), teaching.getString(13), teaching.getString(14), teaching.getString(15))));
+        mVerseList.add(new MVerse(safeString(verses, 1), safeString(verses, 2), safeString(verses, 3), safeString(verses, 4), safeString(verses, 5), safeString(verses, 6), safeString(verses, 7), safeInt(verses, 8), teachingFromCursor(teaching)));
       } else {
-        mNVerseList.add(new MNVerse(verses.getString(1), verses.getString(2), verses.getString(3), verses.getString(4), verses.getString(5), verses.getString(6), verses.getString(7), Integer.parseInt(verses.getString(8))));
+        mNVerseList.add(new MNVerse(safeString(verses, 1), safeString(verses, 2), safeString(verses, 3), safeString(verses, 4), safeString(verses, 5), safeString(verses, 6), safeString(verses, 7), safeInt(verses, 8)));
       }
       verses.moveToNext();
     }
@@ -691,7 +732,7 @@ public class DBHelper extends SQLiteOpenHelper {
     Cursor teaching = db.rawQuery("select DISTINCT * from " + TABLE_TEACHING, null);
     teaching.moveToFirst();
     while (!teaching.isAfterLast()) {
-      mVerseList.add(new MVerse.Teachings(teaching.getString(1), Integer.parseInt(teaching.getString(2)), teaching.getString(3), teaching.getString(4), Integer.parseInt(teaching.getString(5)), Integer.parseInt(teaching.getString(6)), Integer.parseInt(teaching.getString(7)), Integer.parseInt(teaching.getString(8)), teaching.getString(9), teaching.getString(10), teaching.getString(11), teaching.getString(12), teaching.getString(13), teaching.getString(14), teaching.getString(15)));
+      mVerseList.add(teachingFromCursor(teaching));
       teaching.moveToNext();
     }
 
@@ -708,7 +749,7 @@ public class DBHelper extends SQLiteOpenHelper {
     Cursor teaching = db.rawQuery("select * from " + TABLE_TEACHING + " WHERE " + UUID + "=?", new String[]{verse.getString(9)});
     teaching.moveToFirst();
     while (!teaching.isAfterLast()) {
-      mVerseList.add(new MVerse.Teachings(teaching.getString(1), Integer.parseInt(teaching.getString(2)), teaching.getString(3), teaching.getString(4), Integer.parseInt(teaching.getString(5)), Integer.parseInt(teaching.getString(6)), Integer.parseInt(teaching.getString(7)), Integer.parseInt(teaching.getString(8)), teaching.getString(9), teaching.getString(10), teaching.getString(11), teaching.getString(12), teaching.getString(13), teaching.getString(14), teaching.getString(15)));
+      mVerseList.add(teachingFromCursor(teaching));
       teaching.moveToNext();
     }
 
