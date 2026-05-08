@@ -100,7 +100,7 @@ public class DBHelper extends SQLiteOpenHelper {
   }
 
   private String safeString(Cursor cursor, int columnIndex) {
-    if (cursor == null || columnIndex < 0 || cursor.isNull(columnIndex)) {
+    if (cursor == null || columnIndex < 0 || columnIndex >= cursor.getColumnCount() || cursor.isNull(columnIndex)) {
       return "";
     }
 
@@ -137,6 +137,20 @@ public class DBHelper extends SQLiteOpenHelper {
       safeString(teaching, 13),
       safeString(teaching, 14),
       safeString(teaching, 15)
+    );
+  }
+
+  private Teaching teachingSummaryFromCursor(Cursor cursor) {
+    return new Teaching(
+      safeString(cursor, 1),
+      safeString(cursor, 2),
+      safeString(cursor, 9),
+      safeString(cursor, 10),
+      safeString(cursor, 11),
+      safeString(cursor, 12),
+      safeString(cursor, 13),
+      safeString(cursor, 14),
+      safeString(cursor, 15)
     );
   }
 
@@ -238,7 +252,7 @@ public class DBHelper extends SQLiteOpenHelper {
       cursor = db.rawQuery("Select " + NAME + " from " + TABLE_BOOK, null);
       if (cursor != null) {
         if (cursor.moveToFirst()) {
-          bookName = cursor.getString(cursor.getColumnIndex(NAME));
+          bookName = safeString(cursor, cursor.getColumnIndex(NAME));
         }
       }
       cursor.close();
@@ -321,13 +335,14 @@ public class DBHelper extends SQLiteOpenHelper {
     int count = 0;
     SQLiteDatabase db = this.getWritableDatabase();
     Cursor cursor = db.rawQuery("Select * from " + TABLE_VERSES, null);
-    cursor.moveToFirst();
-    while (!cursor.isAfterLast()) {
-      String verseUrl = cursor.getString(10); // position of TEACHING_AUDIO
-      if (verseUrl.startsWith("file:///")) {
-        count++;
+    if (cursor.moveToFirst()) {
+      while (!cursor.isAfterLast()) {
+        String verseUrl = safeString(cursor, 10); // position of TEACHING_AUDIO
+        if (verseUrl.startsWith("file:///")) {
+          count++;
+        }
+        cursor.moveToNext();
       }
-      cursor.moveToNext();
     }
     cursor.close();
     return count;
@@ -432,7 +447,7 @@ public class DBHelper extends SQLiteOpenHelper {
     SQLiteDatabase db = this.getWritableDatabase();
     Cursor res = db.rawQuery("Select * from " + TABLE_VERSES + " WHERE " + TABLE_TEACHING + "=?", new String[]{mTeachId});
     if (res != null && res.moveToFirst()) {
-      mTeach = new Teaching(res.getString(1), res.getString(2), res.getString(9), res.getString(10), res.getString(11), res.getString(12), res.getString(13), res.getString(14), res.getString(15));
+      mTeach = teachingSummaryFromCursor(res);
       res.close();
     }
     return mTeach;
@@ -444,7 +459,7 @@ public class DBHelper extends SQLiteOpenHelper {
     Cursor res = db.rawQuery("Select * from " + TABLE_AUDIO + " WHERE " + DOWNLOAD_ID + "=? AND " + AUDIO_PATH + "= ?", new String[]{"", ""});
     if (res != null && res.moveToFirst()) {
       while (!res.isAfterLast()) {
-        mChapters.add(new DownloadData(0L, res.getString(3), Constants.CHAPTER, res.getString(8), "", res.getString(6), res.getString(5), "",  Constants.PENDING));
+        mChapters.add(new DownloadData(0L, safeString(res, 3), Constants.CHAPTER, safeString(res, 8), "", safeString(res, 6), safeString(res, 5), "",  Constants.PENDING));
         res.moveToNext();
       }
     }
@@ -458,7 +473,7 @@ public class DBHelper extends SQLiteOpenHelper {
     Cursor res = db.rawQuery("Select * from " + TABLE_TEACHING + " WHERE " + DOWNLOAD_ID + "=? AND " + AUDIO_PATH + "= ?", new String[]{"", ""});
     if (res != null && res.moveToFirst()) {
       while (!res.isAfterLast()) {
-        mChapters.add(new DownloadData(0L, res.getString(4).toLowerCase(Locale.getDefault()), Constants.TEACHING, Constants.TEACHING_URL + res.getString(1), "", res.getString(14), res.getString(16), res.getString(1),  Constants.PENDING));
+        mChapters.add(new DownloadData(0L, safeString(res, 4).toLowerCase(Locale.getDefault()), Constants.TEACHING, Constants.TEACHING_URL + safeString(res, 1), "", safeString(res, 14), safeString(res, 16), safeString(res, 1),  Constants.PENDING));
         res.moveToNext();
       }
     }
@@ -472,7 +487,7 @@ public class DBHelper extends SQLiteOpenHelper {
     Cursor res = db.rawQuery("Select * from " + TABLE_VERSES, null);
     if (res != null && res.moveToFirst()) {
       while (!res.isAfterLast()) {
-        mTeaching.add(new Teaching(res.getString(1), res.getString(2), res.getString(9), res.getString(10), res.getString(11), res.getString(12), res.getString(13), res.getString(14), res.getString(15)));
+        mTeaching.add(teachingSummaryFromCursor(res));
         res.moveToNext();
       }
     }
@@ -481,11 +496,12 @@ public class DBHelper extends SQLiteOpenHelper {
   }
 
   public BookOnly getAllBooks() {
-    BookOnly mBook;
+    BookOnly mBook = new BookOnly("", "", "", "", 0, "", "", "", 0, "", "");
     SQLiteDatabase db = this.getWritableDatabase();
     Cursor res = db.rawQuery("Select * from " + TABLE_BOOK, null);
-    res.moveToFirst();
-    mBook = new BookOnly(res.getString(1), res.getString(2), res.getString(3), res.getString(4), Integer.parseInt(res.getString(5)), res.getString(6), res.getString(7), res.getString(8), Integer.parseInt(res.getString(9)), res.getString(10), res.getString(11));
+    if (res.moveToFirst()) {
+      mBook = new BookOnly(safeString(res, 1), safeString(res, 2), safeString(res, 3), safeString(res, 4), safeInt(res, 5), safeString(res, 6), safeString(res, 7), safeString(res, 8), safeInt(res, 9), safeString(res, 10), safeString(res, 11));
+    }
     res.close();
     return mBook;
   }
@@ -497,29 +513,32 @@ public class DBHelper extends SQLiteOpenHelper {
 
     Cursor cursor = db.rawQuery("Select * from " + CHAPTER_ID, null);
     cursor.moveToFirst();
+    cursor.close();
 
 //        SQLiteDatabase db = this.getReadableDatabase();
     Cursor res = db.rawQuery("select * from " + TABLE_BOOK + " WHERE " + BOOK_ID + "=?", new String[]{mBookId});
     if (res != null && res.moveToFirst()) {
-      int totalChap = Integer.parseInt(res.getString(5));
+      int totalChap = safeInt(res, 5);
       ArrayList<Chapters> mChapList = new ArrayList<>();
       for (int i = 1; i <= totalChap; i++) {
         ArrayList<Verse> mVerseList = new ArrayList<>();
 
         db = this.getReadableDatabase();
         res = db.rawQuery("select * from " + TABLE_VERSES + " WHERE " + CHAPTER_ID + "=?", new String[]{i + ""});
-        res.moveToFirst();
-        while (!res.isAfterLast()) {
-          mVerseList.add(new Verse(res.getString(1), res.getString(2), res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7), res.getString(8), res.getString(9), res.getString(10), res.getString(11), res.getString(12), res.getString(13), res.getString(14), res.getString(15), res.getString(16), res.getString(17), res.getString(18)));
-          res.moveToNext();
+        if (res.moveToFirst()) {
+          while (!res.isAfterLast()) {
+            mVerseList.add(new Verse(safeString(res, 1), safeString(res, 2), safeString(res, 3), safeString(res, 4), safeString(res, 5), safeString(res, 6), safeString(res, 7), safeString(res, 8), safeString(res, 9), safeString(res, 10), safeString(res, 11), safeString(res, 12), safeString(res, 13), safeString(res, 14), safeString(res, 15), safeString(res, 16), safeString(res, 17), safeString(res, 18)));
+            res.moveToNext();
+          }
         }
 
         db = this.getReadableDatabase();
         res = db.rawQuery("select * from " + CHAPTER_ID + " WHERE " + CHAPTER_ID + "=?", new String[]{i + ""});
-        res.moveToFirst();
-        while (!res.isAfterLast()) {
-          mChapList.add(new Chapters(res.getString(1), res.getString(2), res.getString(3), mVerseList));
-          res.moveToNext();
+        if (res.moveToFirst()) {
+          while (!res.isAfterLast()) {
+            mChapList.add(new Chapters(safeString(res, 1), safeString(res, 2), safeString(res, 3), mVerseList));
+            res.moveToNext();
+          }
         }
       }
 
@@ -527,11 +546,12 @@ public class DBHelper extends SQLiteOpenHelper {
       Book mBook = null;
       db = this.getReadableDatabase();
       res = db.rawQuery("select * from " + TABLE_BOOK + " WHERE " + BOOK_ID + "=?", new String[]{mBookId});
-      res.moveToFirst();
-      while (!res.isAfterLast()) {
-        mBook = new Book(res.getString(1), res.getString(2), res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7), mChapList);
+      if (res.moveToFirst()) {
+        while (!res.isAfterLast()) {
+          mBook = new Book(safeString(res, 1), safeString(res, 2), safeString(res, 3), safeString(res, 4), safeString(res, 5), safeString(res, 6), safeString(res, 7), mChapList);
 //            mBookList.add(new Book(res.getString(1), res.getString(2), res.getString(3), res.getString(4), res.getString(5), res.getString(6), res.getString(7), mChapList));
-        res.moveToNext();
+          res.moveToNext();
+        }
       }
       res.close();
       return mBook;
@@ -548,7 +568,7 @@ public class DBHelper extends SQLiteOpenHelper {
     if (cursor != null) {
       try {
         if (cursor.moveToFirst()) {
-          columnValue = cursor.getString(cursor.getColumnIndex(NAME));
+          columnValue = safeString(cursor, cursor.getColumnIndex(NAME));
           return columnValue;
         }
       } finally {
@@ -568,7 +588,7 @@ public class DBHelper extends SQLiteOpenHelper {
     if (cursor != null) {
       try {
         if (cursor.moveToFirst()) {
-          columnValue = cursor.getString(cursor.getColumnIndex(REFERENCE));
+          columnValue = safeString(cursor, cursor.getColumnIndex(REFERENCE));
           return columnValue;
         }
       } finally {
@@ -588,7 +608,7 @@ public class DBHelper extends SQLiteOpenHelper {
     if (cursor != null) {
       try {
         if (cursor.moveToFirst()) {
-          columnValue += cursor.getString(cursor.getColumnIndex(UUID));
+          columnValue += safeString(cursor, cursor.getColumnIndex(UUID));
           return columnValue;
         }
       } finally {
@@ -608,7 +628,7 @@ public class DBHelper extends SQLiteOpenHelper {
     if (cursor != null) {
       try {
         if (cursor.moveToFirst()) {
-          columnValue = cursor.getString(cursor.getColumnIndex(URL));
+          columnValue = safeString(cursor, cursor.getColumnIndex(URL));
           return columnValue;
         }
       } finally {
@@ -640,7 +660,7 @@ public class DBHelper extends SQLiteOpenHelper {
     if (cursor != null) {
       if (cursor.moveToFirst()) {
         while (!cursor.isAfterLast()) {
-          mUrlList.add(new URLData(((file_type.equals(Constants.TEACHING)) ? Constants.TEACHING_URL : "" ) + cursor.getString(0), cursor.getString(1)));
+          mUrlList.add(new URLData(((file_type.equals(Constants.TEACHING)) ? Constants.TEACHING_URL : "" ) + safeString(cursor, 0), safeString(cursor, 1)));
           cursor.moveToNext();
         }
       }
@@ -664,7 +684,7 @@ public class DBHelper extends SQLiteOpenHelper {
     if (cursor != null) {
       if (cursor.moveToFirst()) {
         while (!cursor.isAfterLast()) {
-          mChapList.add(new BookDownload.Chapter(cursor.getString(0), cursor.getString(1)));
+          mChapList.add(new BookDownload.Chapter(safeString(cursor, 0), safeString(cursor, 1)));
           cursor.moveToNext();
         }
       }
@@ -675,7 +695,7 @@ public class DBHelper extends SQLiteOpenHelper {
     if (cursor != null) {
       if (cursor.moveToFirst()) {
         while (!cursor.isAfterLast()) {
-          mTeachList.add(new BookDownload.Teaching(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6)));
+          mTeachList.add(new BookDownload.Teaching(safeString(cursor, 0), safeString(cursor, 1), safeString(cursor, 2), safeString(cursor, 3), safeString(cursor, 4), safeString(cursor, 5), safeString(cursor, 6)));
           cursor.moveToNext();
         }
       }
@@ -689,10 +709,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     SQLiteDatabase db = this.getReadableDatabase();
     Cursor res = db.rawQuery("select * from " + CHAPTER_ID + " WHERE " + CHAPTER_ID + "=?", new String[]{chapter});
-    res.moveToFirst();
-    while (!res.isAfterLast()) {
-      mChapList.add(new Chapters(res.getString(1), res.getString(2), res.getString(3), null));
-      res.moveToNext();
+    if (res.moveToFirst()) {
+      while (!res.isAfterLast()) {
+        mChapList.add(new Chapters(safeString(res, 1), safeString(res, 2), safeString(res, 3), new ArrayList<Verse>()));
+        res.moveToNext();
+      }
     }
     res.close();
     return mChapList;
@@ -704,16 +725,20 @@ public class DBHelper extends SQLiteOpenHelper {
 
     SQLiteDatabase db = this.getReadableDatabase();
     Cursor verses = db.rawQuery("select * from " + TABLE_VERSES + " WHERE " + BIBLE_ID + "=?" + " AND " + CHAPTERNUMBER + "=?", new String[]{bibleId, chapter});
-    verses.moveToFirst();
-    while (!verses.isAfterLast()) {
-      if (!verses.getString(9).equals("")) {
-        Cursor teaching = db.rawQuery("select * from " + TABLE_TEACHING + " WHERE " + UUID + "=?", new String[]{verses.getString(9)});
-        teaching.moveToFirst();
-        mVerseList.add(new MVerse(safeString(verses, 1), safeString(verses, 2), safeString(verses, 3), safeString(verses, 4), safeString(verses, 5), safeString(verses, 6), safeString(verses, 7), safeInt(verses, 8), teachingFromCursor(teaching)));
-      } else {
-        mNVerseList.add(new MNVerse(safeString(verses, 1), safeString(verses, 2), safeString(verses, 3), safeString(verses, 4), safeString(verses, 5), safeString(verses, 6), safeString(verses, 7), safeInt(verses, 8)));
+    if (verses.moveToFirst()) {
+      while (!verses.isAfterLast()) {
+        String teachingUuid = safeString(verses, 9);
+        if (!teachingUuid.equals("")) {
+          Cursor teaching = db.rawQuery("select * from " + TABLE_TEACHING + " WHERE " + UUID + "=?", new String[]{teachingUuid});
+          if (teaching.moveToFirst()) {
+            mVerseList.add(new MVerse(safeString(verses, 1), safeString(verses, 2), safeString(verses, 3), safeString(verses, 4), safeString(verses, 5), safeString(verses, 6), safeString(verses, 7), safeInt(verses, 8), teachingFromCursor(teaching)));
+          }
+          teaching.close();
+        } else {
+          mNVerseList.add(new MNVerse(safeString(verses, 1), safeString(verses, 2), safeString(verses, 3), safeString(verses, 4), safeString(verses, 5), safeString(verses, 6), safeString(verses, 7), safeInt(verses, 8)));
+        }
+        verses.moveToNext();
       }
-      verses.moveToNext();
     }
     verses.close();
     if (!mVerseList.isEmpty()) {
@@ -730,10 +755,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     SQLiteDatabase db = this.getReadableDatabase();
     Cursor teaching = db.rawQuery("select DISTINCT * from " + TABLE_TEACHING, null);
-    teaching.moveToFirst();
-    while (!teaching.isAfterLast()) {
-      mVerseList.add(teachingFromCursor(teaching));
-      teaching.moveToNext();
+    if (teaching.moveToFirst()) {
+      while (!teaching.isAfterLast()) {
+        mVerseList.add(teachingFromCursor(teaching));
+        teaching.moveToNext();
+      }
     }
 
     teaching.close();
@@ -745,14 +771,19 @@ public class DBHelper extends SQLiteOpenHelper {
 
     SQLiteDatabase db = this.getReadableDatabase();
     Cursor verse = db.rawQuery("select DISTINCT * from " + TABLE_VERSES + " WHERE " + VERSENUMBER + "=?" + " AND " + CHAPTERNUMBER + "=?", new String[]{verseNumber, chapterNumber});
-    verse.moveToFirst();
-    Cursor teaching = db.rawQuery("select * from " + TABLE_TEACHING + " WHERE " + UUID + "=?", new String[]{verse.getString(9)});
-    teaching.moveToFirst();
-    while (!teaching.isAfterLast()) {
-      mVerseList.add(teachingFromCursor(teaching));
-      teaching.moveToNext();
+    if (!verse.moveToFirst()) {
+      verse.close();
+      return mVerseList;
+    }
+    Cursor teaching = db.rawQuery("select * from " + TABLE_TEACHING + " WHERE " + UUID + "=?", new String[]{safeString(verse, 9)});
+    if (teaching.moveToFirst()) {
+      while (!teaching.isAfterLast()) {
+        mVerseList.add(teachingFromCursor(teaching));
+        teaching.moveToNext();
+      }
     }
 
+    verse.close();
     teaching.close();
     return mVerseList;
   }
