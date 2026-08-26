@@ -115,9 +115,9 @@ class CachePlugin : Plugin() {
           }
           else if (call.data.getString("type") == "getTeaching") {
             val teachId = call.data.getString("teaching_id")
-            val myDbFile = File("/data/data/$myPkg/databases/", call.data.getString("book_id")!!.toLowerCase(Locale.getDefault()))
+            val myDbFile = File("/data/data/$myPkg/databases/", call.data.getString("book_id")!!.lowercase(Locale.getDefault()))
             if (myDbFile.exists()) {
-              val bookId = myDbFile.name.toLowerCase()
+              val bookId = myDbFile.name.lowercase(Locale.getDefault())
               genDb = DBHelper(mAppContext, bookId)
 
               ret.put("value", gson.convertToJsonString(genDb.getTeach(teachId)))
@@ -130,9 +130,9 @@ class CachePlugin : Plugin() {
           else if (call.data.getString("type") == "getBookTeaching") {
 
             var mTeachArray: ArrayList<Teaching> = ArrayList()
-            val myDbFile = File("/data/data/$myPkg/databases/", call.data.getString("book_id")!!.toLowerCase(Locale.getDefault()))
+            val myDbFile = File("/data/data/$myPkg/databases/", call.data.getString("book_id")!!.lowercase(Locale.getDefault()))
             if (myDbFile.exists()) {
-              val bookId = myDbFile.name.toLowerCase();
+              val bookId = myDbFile.name.lowercase(Locale.getDefault());
               genDb = DBHelper(mAppContext, bookId)
               mTeachArray = genDb.teachingOnly
               ret.put("value", gson.convertToJsonString(mTeachArray.distinct()))
@@ -156,7 +156,7 @@ class CachePlugin : Plugin() {
 
             for (myDbFile in myDbs) {
               if (myDbFile.exists()) {
-                val bookId = myDbFile.name.toLowerCase()
+                val bookId = myDbFile.name.lowercase(Locale.getDefault())
                 genDb = DBHelper(mAppContext, bookId)
 
                 mOBookArray.add(genDb.allBooks)
@@ -171,7 +171,7 @@ class CachePlugin : Plugin() {
 
             for (myDbFile in myDbs) {
               if (myDbFile.exists()) {
-                val bookId = myDbFile.name.toLowerCase();
+                val bookId = myDbFile.name.lowercase(Locale.getDefault());
                 genDb = DBHelper(mAppContext, bookId)
 
                 mNBookArray.add(genDb.allBooks)
@@ -183,7 +183,7 @@ class CachePlugin : Plugin() {
 
             for (myDbFile in myDbs) {
               if (myDbFile.exists()) {
-                val bookId = myDbFile.name.toLowerCase();
+                val bookId = myDbFile.name.lowercase(Locale.getDefault());
                 genDb = DBHelper(mAppContext, bookId)
 
                 mGBookArray.add(genDb.allBooks)
@@ -195,12 +195,12 @@ class CachePlugin : Plugin() {
               call.resolve(ret)
           }
           else if (call.data.getString("type") == "getVerses") {
-            val bookId = call.data.getString("bookId")!!.toLowerCase()
+            val bookId = call.data.getString("bookId")!!.lowercase(Locale.getDefault())
             val bibleId = call.data.getString("bibleId")
             val chapterNumber = call.data.getString("chapterNumber")
             val myBook = File("/data/data/$myPkg/databases/", bookId)
             if (myBook.exists()) {
-              val bookId = myBook.name.toLowerCase()
+              val bookId = myBook.name.lowercase(Locale.getDefault())
               genDb = DBHelper(mAppContext, bookId)
 
                 ret.put("value", gson.convertToJsonString(
@@ -216,14 +216,14 @@ class CachePlugin : Plugin() {
             }
           }
           else if (call.data.getString("type") == "getDownloadList") {
-            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val book_id = call.data.getString("book_id")!!.lowercase(Locale.getDefault())
             val file_type = call.data.getString("file_type")
             genDb = DBHelper(mAppContext, book_id)
               ret.put("value", gson.convertToJsonString(genDb.getAllNotDownloadedUrl(file_type)))
               call.resolve(ret)
           }
           else if (call.data.getString("type") == "getTeachings") {
-            val bible_book = call.data.getString("bible_book")!!.toLowerCase()
+            val bible_book = call.data.getString("bible_book")!!.lowercase(Locale.getDefault())
             if (call.data.has("chapterNumber")) {
               val chapterNumber = call.data.getString("chapterNumber")
               val verseNumber = call.data.getString("verseNumber")
@@ -245,9 +245,9 @@ class CachePlugin : Plugin() {
                   call.resolve(ret)
               }
             } else {
-              val myBook = File("/data/data/$myPkg/databases/", bible_book.toLowerCase())
+              val myBook = File("/data/data/$myPkg/databases/", bible_book.lowercase(Locale.getDefault()))
               if (myBook.exists()) {
-                val bookId = myBook.name.toLowerCase()
+                val bookId = myBook.name.lowercase(Locale.getDefault())
                 genDb = DBHelper(mAppContext, bookId)
 
                   ret.put("value", gson.convertToJsonString(genDb.teachings))
@@ -260,9 +260,9 @@ class CachePlugin : Plugin() {
           }
           else if (call.data.getString("type") == "getBibleData") {
             genDb =
-              DBHelper(mAppContext, call.data.getString("book_id")!!.toLowerCase(Locale.getDefault()))
+              DBHelper(mAppContext, call.data.getString("book_id")!!.lowercase(Locale.getDefault()))
 
-            val mBook: Book = genDb.getBook(call.data.getString("book_id")!!.toLowerCase(Locale.getDefault()))
+            val mBook: Book = genDb.getBook(call.data.getString("book_id")!!.lowercase(Locale.getDefault()))
             val mBookArray: ArrayList<Book> = ArrayList()
             mBookArray.add(mBook)
               ret.put("value", gson.convertToJsonString(mBookArray))
@@ -279,7 +279,7 @@ class CachePlugin : Plugin() {
               if (call.data != null) {
 
                 if (call.data.has("book_id") && call.data.has("file_type") && call.data.has("chapterNumber") && call.data.has("uuid")) {
-                  val mIonicData = IonicData(call.data.getString("book_id")!!.toLowerCase(Locale.getDefault()),
+                  val mIonicData = IonicData(call.data.getString("book_id")!!.lowercase(Locale.getDefault()),
                     call.data.getString("file_type")!!, call.data.getString("chapterNumber")!!, call.data.getString("uuid")!!
                   )
                   genDb = DBHelper(mAppContext, mIonicData.bookId)
@@ -304,7 +304,7 @@ class CachePlugin : Plugin() {
             }
           }
           else if (call.data.getString("type") == "updateLocalPath") {
-            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val book_id = call.data.getString("book_id")!!.lowercase(Locale.getDefault())
             val file_type = call.data.getString("file_type")
             val local_path = call.data.getString("local_path")
             val chapter_number = call.data.getString("chapterNumber")
@@ -319,7 +319,7 @@ class CachePlugin : Plugin() {
 
             downloadManager = activity.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
-            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val book_id = call.data.getString("book_id")!!.lowercase(Locale.getDefault())
             val chapter = call.data.getBoolean("chapter")
             val teaching = call.data.getBoolean("teaching")
             genDb = DBHelper(mAppContext, book_id)
@@ -345,7 +345,7 @@ class CachePlugin : Plugin() {
           }
           else if (call.data.getString("type") == "getPercentage") {
 
-            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val book_id = call.data.getString("book_id")!!.lowercase(Locale.getDefault())
             val file_type = call.data.getString("file_type")
             var downloaded: Double = 0.0
             var total: Double = 0.0
@@ -413,7 +413,7 @@ class CachePlugin : Plugin() {
                   in 0.1..99.9 -> status = Constants.PENDING
                   100.0 -> status = Constants.COMPLETED
                 }
-                mArrayData.add(BookPercentage(dbName.toUpperCase(), status, percent.toInt()))
+                mArrayData.add(BookPercentage(dbName.uppercase(Locale.getDefault()), status, percent.toInt()))
               }
 
             }
@@ -422,7 +422,7 @@ class CachePlugin : Plugin() {
           }
           else if (call.data.getString("type") == "getBookDownloads") {
 
-            val bookId = call.data.getString("bookId")!!.toLowerCase()
+            val bookId = call.data.getString("bookId")!!.lowercase(Locale.getDefault())
 
             val genDb = DBHelper(mAppContext, bookId)
               ret.put("value", gson.convertToJsonString(genDb.bookDownloaded))
@@ -430,7 +430,7 @@ class CachePlugin : Plugin() {
           }
           else if (call.data.getString("type") == "getStatus") {
 
-            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val book_id = call.data.getString("book_id")!!.lowercase(Locale.getDefault())
             val file_type = call.data.getString("file_type")
             val chapterNumber = call.data.getString("chapterNumber")
 
@@ -442,7 +442,7 @@ class CachePlugin : Plugin() {
           else if (call.data.getString("type") == "updateDownload") {
             val file_name = call.data.getString("file_name")
 //          PHP_chapter_3.mp3
-            val book_id = file_name?.split("_")?.get(0)?.toLowerCase(Locale.getDefault())
+            val book_id = file_name?.split("_")?.get(0)?.lowercase(Locale.getDefault())
 
             genDb = DBHelper(mAppContext, book_id)
             genDb.updateDownloadedData(call.data)
@@ -451,7 +451,7 @@ class CachePlugin : Plugin() {
               call.resolve(ret)
           }
           else if (call.data.getString("type") == "delete") {
-            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val book_id = call.data.getString("book_id")!!.lowercase(Locale.getDefault())
             val file_type = call.data.getString("file_type")
             val chapterNumber = call.data.getString("chapterNumber")
             val uuid = call.data.getString("uuid")
@@ -464,7 +464,7 @@ class CachePlugin : Plugin() {
               call.resolve(ret)
           }
           else if (call.data.getString("type") == "deleteDownloads") {
-            val book_id = call.data.getString("book_id")!!.toLowerCase(Locale.getDefault())
+            val book_id = call.data.getString("book_id")!!.lowercase(Locale.getDefault())
             val file_type = call.data.getString("file_type")
             val chapterDownloads = call.data.getBoolean("chapterDownloads")
             val studyDownloads = call.data.getBoolean("studyDownloads")
@@ -500,8 +500,8 @@ class CachePlugin : Plugin() {
 
             for (dbName in Constants.ALL_DB) {
               val genDb = DBHelper(mAppContext, dbName)
-              if (genDb.getAtleastDownloaded(dbName.toUpperCase()) != null) {
-                mArrayData.add(genDb.getAtleastDownloaded(dbName.toUpperCase()))
+              if (genDb.getAtleastDownloaded(dbName.uppercase(Locale.getDefault())) != null) {
+                mArrayData.add(genDb.getAtleastDownloaded(dbName.uppercase(Locale.getDefault())))
               }
             }
               ret.put("value", gson.convertToJsonString(mArrayData))
