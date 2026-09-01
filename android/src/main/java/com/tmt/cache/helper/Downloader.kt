@@ -7,6 +7,7 @@ import android.net.Uri
 import android.util.Log
 import com.tmt.cache.model.DownloadData
 import java.util.concurrent.Executors
+import java.util.Locale
 
 class Downloader(val it: DownloadData, val context: Context) {
 
@@ -26,7 +27,7 @@ class Downloader(val it: DownloadData, val context: Context) {
 //      request.setDestinationUri(Uri.fromFile(mFile))
     request.setDestinationInExternalFilesDir(
       context,
-      "${it.bookId.toLowerCase()}/${it.fileType}",
+      "${it.bookId.lowercase(Locale.getDefault())}/${it.fileType}",
       "${it.downloadUrl.substring(it.downloadUrl.lastIndexOf("/") + 1)}"
     )
 

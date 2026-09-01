@@ -103,7 +103,7 @@ class AllDownloadService : LifecycleService() {
     val jsonObject = JSONObject(mInterface.value.toString())
 //      val mData = intent.getStringExtra("data")
     if (jsonObject.has("book_id") && jsonObject.has("file_type") && jsonObject.has("chapter") && jsonObject.has("uuid")) {
-      book_id = jsonObject.getString("book_id").toLowerCase(Locale.getDefault())
+      book_id = jsonObject.getString("book_id").lowercase(Locale.getDefault())
       val file_type = jsonObject.getString("file_type")
       val chapterNumber = jsonObject.getString("chapter")
       val uuid = jsonObject.getString("uuid")
